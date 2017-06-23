@@ -15,7 +15,9 @@
     "express-ws": "^3.0.0",
     "morgan": "~1.7.0",
     "sentiment": "^4.0.0",
+    "sentiment-analysis": "^0.1.2",
     "serve-favicon": "~2.3.2",
-    "twit": "^2.2.9"
+    "twit": "^2.2.9",
+    "ws": "^3.0.0"
   }
 }

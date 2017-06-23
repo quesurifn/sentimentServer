@@ -1,46 +1,64 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var expressWs = require('express-ws')(app);
+'use strict';
+
+const express = require('express');
+const app = express();
+const http = require('http')
+const Twit = require('twit')
+var sentiment = require('sentiment');
+const WebSocket = require('ws');
+const port = 3000;
+
 require('dotenv').config()
 
-var index = require('./routes/index');
+const server = http.createServer(app);
+const tweets = new WebSocket.Server({ server});
 
-var app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+var T = new Twit({
+  consumer_key:         process.env.TWITTER_CONSUMER_KEY,
+  consumer_secret:      process.env.TWITTER_CONSUMER_SECRET,
+  access_token:         process.env.TWITTER_ACCESS_TOKEN,
+  access_token_secret:  process.env.TWITTER_ACCESS_SECRET,
+})
 
-app.use('/', index);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+app.get('/', function(req, res) {
+  res.send('Congratulations, you sent a GET request!');
+  console.log('Received a GET request and sent a response');
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+tweets.on('connection', function(ws, req) {
+  var streamedTweets = [];
+  var tweetsWithLoc =[];
+  const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
+  stream.on('tweet', function(tweet){
+    streamedTweets.push(tweet.text)
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+    //Tweet location
+    if(tweet.coordinates) {
+      if(tweet.coordinates != null) {
+          let outputPoint = {"lat": data.coordinates.coordinates[0],"lng": data.coordinates.coordinates[1]};
+          let locSentiment = sentiment(tweet.text)
+          tweetsWithLoc.push({"tweet": tweet.text, "location": outputPoint, "sentiment": locSentiment});
+      }
+    }
+    if(tweetsWithLoc.length === 40) {
+     ws.send(JSON.stringify({tweetsWithLoc}))
+     tweetsWithLoc.length = 0;
+    }
+
+    //overall sentiment & stuff
+    if(streamedTweets.length === 10) {
+      var trumpSentiment = sentiment(streamedTweets.join());
+      ws.send(JSON.stringify({"sentiment": trumpSentiment, "featuredTweet": streamedTweets[100]}))
+      console.log(trumpSentiment)
+      //clear array & start over
+      streamedTweets.length = 0;
+    }
+  })
+})
+
+
+server.listen(port, function listening() {
+  console.log('Listening on %d', server.address().port);
 });
-
-module.exports = app;
