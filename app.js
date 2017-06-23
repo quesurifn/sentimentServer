@@ -6,12 +6,12 @@ const http = require('http')
 const Twit = require('twit')
 var sentiment = require('sentiment');
 const WebSocket = require('ws');
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 require('dotenv').config()
 
 const server = http.createServer(app);
-const tweets = new WebSocket.Server({ server});
+const tweets = new WebSocket.Server({ server });
 
 
 
