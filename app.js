@@ -37,7 +37,7 @@ tweets.on('connection', function(ws, req) {
     //Tweet location
     if(tweet.coordinates) {
       if(tweet.coordinates != null) {
-          let outputPoint = {"lat": data.coordinates.coordinates[0],"lng": data.coordinates.coordinates[1]};
+          let outputPoint = {"lat": tweet.coordinates.coordinates[0],"lng": tweet.coordinates.coordinates[1]};
           let locSentiment = sentiment(tweet.text)
           tweetsWithLoc.push({"tweet": tweet.text, "location": outputPoint, "sentiment": locSentiment});
       }
