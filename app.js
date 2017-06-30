@@ -50,7 +50,7 @@ tweets.on('connection', function(ws, req) {
     //overall sentiment & stuff
     if(streamedTweets.length === 20) { 
       var trumpSentiment = sentiment(streamedTweets.join());
-      ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[100] }}))
+      ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}))
       console.log(trumpSentiment)
       //clear array & start over
       streamedTweets.length = 0;
