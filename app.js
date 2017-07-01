@@ -43,18 +43,16 @@ tweets.on('connection', function(ws, req) {
       }
     }
     if(tweetsWithLoc.length === 40) {
-     ws.send({"location":tweetsWithLoc})
+     ws.send(JSON.stringify({"location":tweetsWithLoc}))
      tweetsWithLoc.length = 0;
     }
 
     //overall sentiment & stuff
     if(streamedTweets.length === 20) { 
       var trumpSentiment = sentiment(streamedTweets.join());
-<<<<<<< HEAD
+
       ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}))
-=======
-      ws.send({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }})
->>>>>>> b0585efd2b568a8705ab4dbd28c0685b4a334017
+
       console.log(trumpSentiment)
       //clear array & start over
       streamedTweets.length = 0;
