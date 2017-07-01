@@ -44,7 +44,7 @@ tweets.on('connection', function(ws, req) {
     }
     if(tweetsWithLoc.length === 40) {
 
-     ws.send({"location":tweetsWithLoc}, function(error) {
+     ws.send(JSON.stringify({"location":tweetsWithLoc}), function(error) {
        if (error) {
          console.log(error)
        }
