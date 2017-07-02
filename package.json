@@ -12,13 +12,21 @@
     "debug": "~2.6.0",
     "dotenv": "^4.0.0",
     "ejs": "~2.5.5",
-    "express": "~4.14.1",
+    "express": "^4.15.3",
     "express-ws": "^3.0.0",
+    "express.io": "^1.1.13",
     "morgan": "~1.7.0",
     "sentiment": "^4.0.0",
     "sentiment-analysis": "^0.1.2",
     "serve-favicon": "~2.3.2",
+    "server-sent-events": "^1.0.1",
+    "sse": "0.0.6",
+    "sse-express": "^1.0.2",
     "twit": "^2.2.9",
     "ws": "^3.0.0"
+  },
+  "devDependencies": {
+    "coffee-script": "^1.12.6",
+    "connect": "^3.6.2"
   }
 }
