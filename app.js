@@ -5,13 +5,13 @@ const app = express();
 const http = require('http')
 const Twit = require('twit')
 var sentiment = require('sentiment');
-const WebSocket = require('ws');
+
 const port = process.env.PORT || 3000;
 
 require('dotenv').config()
 
 const server = http.createServer(app);
-const tweets = new WebSocket.Server({ server });
+let sse = require('sse-express');
 
 
 
@@ -22,12 +22,18 @@ var T = new Twit({
   access_token_secret:  process.env.TWITTER_ACCESS_SECRET,
 })
 
-app.get('/', function(req, res) {
-  res.send('Congratulations, you sent a GET request!');
-  console.log('Received a GET request and sent a response');
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
 });
 
-tweets.on('connection', function(ws, req) {
+
+app.get('/', sse, function(req, res) {
+
+
+
   var streamedTweets = [];
   var tweetsWithLoc =[];
   const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
@@ -44,11 +50,15 @@ tweets.on('connection', function(ws, req) {
     }
     if(tweetsWithLoc.length === 40) {
 
+<<<<<<< HEAD
      ws.send(JSON.stringify({"location":tweetsWithLoc}), function(error) {
        if (error) {
          console.log(error)
        }
      })
+=======
+     res.sse('message', JSON.stringify({"location":tweetsWithLoc}))
+>>>>>>> 79042abf2da2f881d06d788a8465e63c6db7ed2d
 
      tweetsWithLoc.length = 0;
     }
@@ -58,11 +68,16 @@ tweets.on('connection', function(ws, req) {
       var trumpSentiment = sentiment(streamedTweets.join());
 
 
+<<<<<<< HEAD
       ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}), function(error)   {
         if (error) {
           console.log(error)
         }
       })
+=======
+      res.sse('message', JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}))
+       
+>>>>>>> 79042abf2da2f881d06d788a8465e63c6db7ed2d
 
 
       console.log(trumpSentiment)
@@ -70,7 +85,11 @@ tweets.on('connection', function(ws, req) {
       streamedTweets.length = 0;
     }
   })
-})
+
+});
+
+
+
 
 
 server.listen(port, function listening() {
