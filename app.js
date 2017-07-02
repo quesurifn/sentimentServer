@@ -21,6 +21,14 @@ var T = new Twit({
   access_token_secret:  process.env.TWITTER_ACCESS_SECRET,
 })
 
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+
 app.get('/', sse, function(req, res) {
     var streamedTweets = [];
   var tweetsWithLoc =[];
