@@ -30,10 +30,12 @@ app.use(function(req, res, next) {
 });
 
 
-app.get('/', sse, function(req, res) {
+app.get('/', function(req, res) {
+  res.send('Congratulations, you sent a GET request!');
+  console.log('Received a GET request and sent a response');
+});
 
-
-
+tweets.on('connection', function(ws, req) {
   var streamedTweets = [];
   var tweetsWithLoc =[];
   const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
@@ -50,12 +52,12 @@ app.get('/', sse, function(req, res) {
     }
     if(tweetsWithLoc.length === 40) {
 
-
      ws.send(JSON.stringify({"location":tweetsWithLoc}), function(error) {
        if (error) {
          console.log(error)
        }
      })
+
      tweetsWithLoc.length = 0;
     }
 
@@ -71,17 +73,12 @@ app.get('/', sse, function(req, res) {
       })
 
 
-
       console.log(trumpSentiment)
       //clear array & start over
       streamedTweets.length = 0;
     }
   })
-
-});
-
-
-
+})
 
 
 server.listen(port, function listening() {
