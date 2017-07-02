@@ -18,6 +18,7 @@
     "sentiment": "^4.0.0",
     "sentiment-analysis": "^0.1.2",
     "serve-favicon": "~2.3.2",
+    "server-sent-events": "^1.0.1",
     "twit": "^2.2.9",
     "ws": "^3.0.0"
   }

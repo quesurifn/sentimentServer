@@ -5,13 +5,12 @@ const app = express();
 const http = require('http')
 const Twit = require('twit')
 var sentiment = require('sentiment');
-const WebSocket = require('ws');
+var sse = require('server-sent-events');
 const port = process.env.PORT || 3000;
 
 require('dotenv').config()
 
 const server = http.createServer(app);
-const tweets = new WebSocket.Server({ server });
 
 
 
@@ -22,13 +21,8 @@ var T = new Twit({
   access_token_secret:  process.env.TWITTER_ACCESS_SECRET,
 })
 
-app.get('/', function(req, res) {
-  res.send('Congratulations, you sent a GET request!');
-  console.log('Received a GET request and sent a response');
-});
-
-tweets.on('connection', function(ws, req) {
-  var streamedTweets = [];
+app.get('/', sse, function(req, res) {
+    var streamedTweets = [];
   var tweetsWithLoc =[];
   const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
   stream.on('tweet', function(tweet){
@@ -44,11 +38,7 @@ tweets.on('connection', function(ws, req) {
     }
     if(tweetsWithLoc.length === 40) {
 
-     ws.send(JSON.stringify({"location":tweetsWithLoc}), function(error) {
-       if (error) {
-         console.log(error)
-       }
-     })
+     res.sse({"location":tweetsWithLoc})
 
      tweetsWithLoc.length = 0;
     }
@@ -58,11 +48,8 @@ tweets.on('connection', function(ws, req) {
       var trumpSentiment = sentiment(streamedTweets.join());
 
 
-      ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}), function(error)   {
-        if (error) {
-          console.log(error)
-        }
-      })
+      res.sse({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }})
+       
 
 
       console.log(trumpSentiment)
@@ -70,7 +57,11 @@ tweets.on('connection', function(ws, req) {
       streamedTweets.length = 0;
     }
   })
-})
+});
+
+
+
+
 
 
 server.listen(port, function listening() {
