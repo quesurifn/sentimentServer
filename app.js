@@ -5,12 +5,13 @@ const app = express();
 const http = require('http')
 const Twit = require('twit')
 var sentiment = require('sentiment');
-var sse = require('server-sent-events');
+
 const port = process.env.PORT || 3000;
 
 require('dotenv').config()
 
 const server = http.createServer(app);
+let sse = require('sse-express');
 
 
 
@@ -30,7 +31,10 @@ app.use(function(req, res, next) {
 
 
 app.get('/', sse, function(req, res) {
-    var streamedTweets = [];
+
+
+
+  var streamedTweets = [];
   var tweetsWithLoc =[];
   const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
   stream.on('tweet', function(tweet){
@@ -65,8 +69,8 @@ app.get('/', sse, function(req, res) {
       streamedTweets.length = 0;
     }
   })
-});
 
+});
 
 
 
