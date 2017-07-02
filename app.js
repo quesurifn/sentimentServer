@@ -5,14 +5,13 @@ const app = express();
 const http = require('http')
 const Twit = require('twit')
 var sentiment = require('sentiment');
-
+const WebSocket = require('ws');
 const port = process.env.PORT || 3000;
 
 require('dotenv').config()
 
 const server = http.createServer(app);
-let sse = require('sse-express');
-
+const tweets = new WebSocket.Server({ server });
 
 
 var T = new Twit({
