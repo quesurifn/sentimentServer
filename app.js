@@ -50,16 +50,12 @@ app.get('/', sse, function(req, res) {
     }
     if(tweetsWithLoc.length === 40) {
 
-<<<<<<< HEAD
+
      ws.send(JSON.stringify({"location":tweetsWithLoc}), function(error) {
        if (error) {
          console.log(error)
        }
      })
-=======
-     res.sse('message', JSON.stringify({"location":tweetsWithLoc}))
->>>>>>> 79042abf2da2f881d06d788a8465e63c6db7ed2d
-
      tweetsWithLoc.length = 0;
     }
 
@@ -68,16 +64,12 @@ app.get('/', sse, function(req, res) {
       var trumpSentiment = sentiment(streamedTweets.join());
 
 
-<<<<<<< HEAD
       ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}), function(error)   {
         if (error) {
           console.log(error)
         }
       })
-=======
-      res.sse('message', JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}))
-       
->>>>>>> 79042abf2da2f881d06d788a8465e63c6db7ed2d
+
 
 
       console.log(trumpSentiment)
