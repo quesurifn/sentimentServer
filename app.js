@@ -50,7 +50,7 @@ app.get('/', sse, function(req, res) {
     }
     if(tweetsWithLoc.length === 40) {
 
-     res.sse(JSON.stringify({"location":tweetsWithLoc}))
+     res.sse('message', JSON.stringify({"location":tweetsWithLoc}))
 
      tweetsWithLoc.length = 0;
     }
@@ -60,7 +60,7 @@ app.get('/', sse, function(req, res) {
       var trumpSentiment = sentiment(streamedTweets.join());
 
 
-      res.sse(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}))
+      res.sse('message', JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}))
        
 
 
