@@ -36,12 +36,14 @@ app.get('/', function(req, res) {
 
 
 function heartbeat() {
+  console.log('heartbeat')
   this.isAlive = true;
 }
 
 wss.on('connection', function(ws, req) {
    
    ws.isAlive = true;
+   console.log(ws.isAlive)
    ws.on('pong', heartbeat);
 
   let streamedTweets = [];
@@ -81,7 +83,6 @@ wss.on('connection', function(ws, req) {
       })
 
 
-      console.log(trumpSentiment)
       //clear array & start over
       streamedTweets.length = 0;
     }
@@ -95,7 +96,7 @@ const interval = setInterval(function ping() {
     ws.isAlive = false;
     ws.ping('', false, true);
   });
-}, 10000);
+}, 2000);
 
 
 server.listen(port, function listening() {
