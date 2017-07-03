@@ -43,7 +43,6 @@ function heartbeat() {
 wss.on('connection', function(ws, req) {
    
    ws.isAlive = true;
-   console.log(ws.isAlive)
    ws.on('pong', heartbeat);
 
   let streamedTweets = [];
@@ -92,11 +91,11 @@ wss.on('connection', function(ws, req) {
 const interval = setInterval(function ping() {
   wss.clients.forEach(function each(ws) {
     if (ws.isAlive === false) return ws.terminate();
-    if (ws.isAlive === false) console.log('term')
+
     ws.isAlive = false;
     ws.ping('', false, true);
   });
-}, 2000);
+}, 1000);
 
 
 server.listen(port, function listening() {
