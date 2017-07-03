@@ -114,11 +114,11 @@ if (cluster.isMaster) {
 
         // When there are 40 tweets push to client
         if(tweetsWithLoc.length === 40) {
-          ws.send(JSON.stringify({"location":tweetsWithLoc}), function(error) {
-            if (error) {
-              console.log(error)
-            }
-        })
+          try { 
+            ws.send(JSON.stringify({"location":tweetsWithLoc})) 
+          } catch(e) {
+            console.log('Something happened while sending')
+          }
 
         // resset array
         tweetsWithLoc.length = 0;
@@ -132,11 +132,12 @@ if (cluster.isMaster) {
         
 
           // FIRE!!
-          ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}), function(error)   {
-            if (error) {
-              console.log(error)
-            }
-          })
+          try {          
+            ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
+          } catch(e) {
+            console.log('something happend while sending')
+          }
+            
 
 
           //clear array & start over
