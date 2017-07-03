@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 require('dotenv').config()
 
 const server = http.createServer(app);
-const tweets = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server });
 
 
 var T = new Twit({
@@ -34,7 +34,16 @@ app.get('/', function(req, res) {
   console.log('Received a GET request and sent a response');
 });
 
-tweets.on('connection', function(ws, req) {
+
+function heartbeat() {
+  this.isAlive = true;
+}
+
+wss.on('connection', function(ws, req) {
+   
+   ws.isAlive = true;
+   ws.on('pong', heartbeat);
+
   var streamedTweets = [];
   var tweetsWithLoc =[];
   const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
@@ -78,6 +87,15 @@ tweets.on('connection', function(ws, req) {
     }
   })
 })
+
+const interval = setInterval(function ping() {
+  wss.clients.forEach(function each(ws) {
+    if (ws.isAlive === false) return ws.terminate();
+
+    ws.isAlive = false;
+    ws.ping('', false, true);
+  });
+}, 10000);
 
 
 server.listen(port, function listening() {
