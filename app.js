@@ -88,7 +88,7 @@ if (cluster.isMaster) {
           pos++
         } else if (individualSent.score < 0) {
           neg++
-        } else {
+        } else if (individualSent.score === 0) {
           neu++
         }
 
