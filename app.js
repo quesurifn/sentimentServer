@@ -79,15 +79,15 @@ if (cluster.isMaster) {
       let neg = 0;
 
       const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
-      stream.on('tweet', function(tweet){
+      stream.on('tweet', function(tweet) {
         let individualSent = sentiment(tweet.text)
         
         
-        if (individualSent === 0) {
+        if (individualSent.score === 0) {
           neu++
-        } else if (individualSent > 0) {
+        } else if (individualSent.score > 0) {
           pos++
-        } else if (individualSent < 0) {
+        } else if (individualSent.core < 0) {
           neg++
         } else {
           console.log('Sentiment cant parse')
@@ -95,7 +95,7 @@ if (cluster.isMaster) {
 
         // push tweets to array
         streamedTweets.push(tweet.text)
-        
+
         //Tweet location
 
         // if tweet has cooridnates
