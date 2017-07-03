@@ -90,7 +90,7 @@ if (cluster.isMaster) {
         } else if (individualSent.core < 0) {
           neg++
         } else {
-          console.log('Sentiment cant parse')
+          console.log(individualSent)
         }
 
         // push tweets to array
