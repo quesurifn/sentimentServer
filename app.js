@@ -70,37 +70,69 @@ if (cluster.isMaster) {
       ws.isAlive = true;
       ws.on('pong', heartbeat);
 
+
+      // Variables outside of stream
       let streamedTweets = [];
       let tweetsWithLoc =[];
+      let pos = 0;
+      let neu = 0;
+      let neg = 0;
+
       const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
       stream.on('tweet', function(tweet){
-        streamedTweets.push(tweet.text)
+        let individualSent = sentiment(tweet.text)
+        
+        
+        if (individualSent === 0) {
+          neu++
+        } else if (individualSent > 0) {
+          pos++
+        } else if (individualSent < 0) {
+          neg++
+        } else {
+          console.log('Sentiment cant parse')
+        }
 
+        // push tweets to array
+        streamedTweets.push(tweet.text)
+        
         //Tweet location
+
+        // if tweet has cooridnates
         if(tweet.coordinates) {
+          //and if coordiantes don't = null
           if(tweet.coordinates != null) {
+              
+              //get location sentiment and lng / lat
               let outputPoint = {"lat": tweet.coordinates.coordinates[0],"lng": tweet.coordinates.coordinates[1]};
               let locSentiment = sentiment(tweet.text)
+
+              // push to the location array 
               tweetsWithLoc.push({"tweet": tweet.text, "location": outputPoint, "sentiment": locSentiment});
           }
         }
-        if(tweetsWithLoc.length === 40) {
 
-        ws.send(JSON.stringify({"location":tweetsWithLoc}), function(error) {
-          if (error) {
-            console.log(error)
-          }
+        // When there are 40 tweets push to client
+        if(tweetsWithLoc.length === 40) {
+          ws.send(JSON.stringify({"location":tweetsWithLoc}), function(error) {
+            if (error) {
+              console.log(error)
+            }
         })
 
+        // resset array
         tweetsWithLoc.length = 0;
         }
 
-        //overall sentiment & stuff
+        //send streamed tweets off when the array hits 50 tweets
         if(streamedTweets.length === 50) { 
-          var trumpSentiment = sentiment(streamedTweets.join());
 
+          //join all the tweets in the array to a single string
+          let trumpSentiment = sentiment(streamedTweets.join());
+        
 
-          ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19] }}), function(error)   {
+          // FIRE!!
+          ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}), function(error)   {
             if (error) {
               console.log(error)
             }
@@ -108,11 +140,17 @@ if (cluster.isMaster) {
 
 
           //clear array & start over
+
           streamedTweets.length = 0;
+          pos = 0
+          neg = 0
+          neu = 0
         }
       })
     })
 
+
+    // clean up connection
     const interval = setInterval(function ping() {
       wss.clients.forEach(function each(ws) {
         if (ws.isAlive === false) return ws.terminate();
