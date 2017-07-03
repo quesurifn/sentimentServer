@@ -70,7 +70,7 @@ wss.on('connection', function(ws, req) {
     }
 
     //overall sentiment & stuff
-    if(streamedTweets.length === 20) { 
+    if(streamedTweets.length === 50) { 
       var trumpSentiment = sentiment(streamedTweets.join());
 
 
