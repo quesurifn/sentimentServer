@@ -83,14 +83,13 @@ if (cluster.isMaster) {
         let individualSent = sentiment(tweet.text)
         
         
-        if (individualSent.score === 0) {
-          neu++
-        } else if (individualSent.score > 0) {
+      
+        if (individualSent.score > 0) {
           pos++
         } else if (individualSent.score < 0) {
           neg++
         } else {
-          console.log(individualSent)
+          neu++
         }
 
         // push tweets to array
