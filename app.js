@@ -87,7 +87,7 @@ if (cluster.isMaster) {
           neu++
         } else if (individualSent.score > 0) {
           pos++
-        } else if (individualSent.core < 0) {
+        } else if (individualSent.score < 0) {
           neg++
         } else {
           console.log(individualSent)
