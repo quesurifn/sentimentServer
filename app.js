@@ -44,8 +44,8 @@ wss.on('connection', function(ws, req) {
    ws.isAlive = true;
    ws.on('pong', heartbeat);
 
-  var streamedTweets = [];
-  var tweetsWithLoc =[];
+  let streamedTweets = [];
+  let tweetsWithLoc =[];
   const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90' })
   stream.on('tweet', function(tweet){
     streamedTweets.push(tweet.text)
