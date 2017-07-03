@@ -91,7 +91,11 @@ wss.on('connection', function(ws, req) {
 
 const interval = setInterval(function ping() {
   wss.clients.forEach(function each(ws) {
-    if (ws.isAlive === false) return ws.terminate();
+    if (ws.isAlive === false) {
+
+      console.log('term')
+     return ws.terminate();
+    }
 
     ws.isAlive = false;
     ws.ping('', false, true);
