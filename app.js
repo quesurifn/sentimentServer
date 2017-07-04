@@ -69,20 +69,30 @@ if (cluster.isMaster) {
       
       ws.isAlive = true;
       ws.on('pong', heartbeat);
+      
+    })
 
+    wss.broadcast = function(data) {
+ 	    for(var i in this.clients) {
+ 		  this.clients[i].send(data);
+      }
+    };
 
+    //IIFE to control variables and scope
+    
+    (function() { 
       // Variables outside of stream
-      let streamedTweets = [];
-      let tweetsWithLoc =[];
-      let pos = 0;
-      let neu = 0;
-      let neg = 0;
+        let streamedTweets = [];
+        let tweetsWithLoc =[];
+        let pos = 0;
+        let neu = 0;
+        let neg = 0;
 
-      const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
-      stream.on('tweet', function(tweet) {
+        const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
+        stream.on('tweet', function(tweet) {
         let individualSent = sentiment(tweet.text)
-        
-        
+          
+          
       
         if (individualSent.score > 0) {
           pos++
@@ -113,10 +123,12 @@ if (cluster.isMaster) {
 
         // When there are 40 tweets push to client
         if(tweetsWithLoc.length === 40) {
+
+          
           try { 
-            ws.send(JSON.stringify({"location":tweetsWithLoc})) 
+            wss.broadcast(JSON.stringify({"location":tweetsWithLoc})) 
           } catch(e) {
-            console.log('Something happened while sending')
+            console.log(e)
           }
 
         // resset array
@@ -132,9 +144,9 @@ if (cluster.isMaster) {
 
           // FIRE!!
           try {          
-            ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
+            wss.broadcast(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
           } catch(e) {
-            console.log('something happend while sending')
+            console.log(e)
           }
             
 
@@ -148,8 +160,8 @@ if (cluster.isMaster) {
         }
       })
     })
-
-
+    
+    
     // clean up connection
     const interval = setInterval(function ping() {
       wss.clients.forEach(function each(ws) {
