@@ -77,6 +77,9 @@ if (cluster.isMaster) {
       let pos = 0;
       let neu = 0;
       let neg = 0;
+      let scoreArray = [];
+      let scoreArrayLength = 0;
+      let average = 0;
 
       const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
       stream.on('tweet', function(tweet) {
@@ -90,6 +93,9 @@ if (cluster.isMaster) {
           neu++
         }
 
+        if (individualSent != 0) {
+          scoreArray.push(individualSent.score)
+        }
         // push tweets to array
         streamedTweets.push(tweet.text)
 
@@ -111,6 +117,7 @@ if (cluster.isMaster) {
 
         // When there are 40 tweets push to client
         if(tweetsWithLoc.length === 40) {
+
           try { 
             ws.send(JSON.stringify({"location":tweetsWithLoc})) 
           } catch(e) {
@@ -124,13 +131,17 @@ if (cluster.isMaster) {
         //send streamed tweets off when the array hits 50 tweets
         if(streamedTweets.length === 50) { 
 
+          scoreArrayLength = scoreArray.length
+          average = scoreArray.reduce((a, b) => a + b, 0);
+          average = average / scoreArrayLength;
+
           //join all the tweets in the array to a single string
           let trumpSentiment = sentiment(streamedTweets.join());
         
 
           // FIRE!!
           try {          
-            ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
+            ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu, "average": average}}))
           } catch(e) {
             console.log('something happend while sending')
           }
@@ -138,7 +149,8 @@ if (cluster.isMaster) {
 
 
           //clear array & start over
-
+          scoreArrayLength = 0;
+          scoreArray.length = 0;
           streamedTweets.length = 0;
           pos = 0
           neg = 0
