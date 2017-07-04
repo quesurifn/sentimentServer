@@ -1,16 +1,16 @@
 'use strict';
 
 // Include the cluster module
-var cluster = require('cluster');
+const cluster = require('cluster');
 
 // Code to run if we're in the master process
 if (cluster.isMaster) {
 
     // Count the machine's CPUs
-    var cpuCount = require('os').cpus().length;
+    const cpuCount = require('os').cpus().length;
 
     // Create a worker for each CPU
-    for (var i = 0; i < cpuCount; i += 1) {
+    for (let i = 0; i < cpuCount; i += 1) {
         cluster.fork();
     }
 
@@ -32,13 +32,13 @@ if (cluster.isMaster) {
     var sentiment = require('sentiment');
     const WebSocket = require('ws');
     const port = process.env.PORT || 3000;
-    var cluster = require('cluster');
+    const cluster = require('cluster');
     require('dotenv').config()
 
     const server = http.createServer(app);
     const wss = new WebSocket.Server({ server });
 
-    var T = new Twit({
+    const T = new Twit({
       consumer_key:         process.env.TWITTER_CONSUMER_KEY,
       consumer_secret:      process.env.TWITTER_CONSUMER_SECRET,
       access_token:         process.env.TWITTER_ACCESS_TOKEN,
