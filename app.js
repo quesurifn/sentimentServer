@@ -65,10 +65,6 @@ if (cluster.isMaster) {
       this.isAlive = true;
     }
 
-    ws.on('close', function () {
-      stream.stop();
-    });
-
     wss.on('connection', function(ws, req) {
       
       ws.isAlive = true;
