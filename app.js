@@ -159,7 +159,7 @@ if (cluster.isMaster) {
           neu = 0
         }
       })
-    })
+    })()
     
     
     // clean up connection
