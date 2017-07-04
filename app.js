@@ -123,7 +123,7 @@ if (cluster.isMaster) {
           try { 
             ws.send(JSON.stringify({"location":tweetsWithLoc})) 
           } catch(e) {
-            console.log('Something happened while sending')
+            console.log(e)
           }
 
         // resset array
@@ -149,11 +149,9 @@ if (cluster.isMaster) {
           try {          
             ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu, "average": average}}))
           } catch(e) {
-            console.log('something happend while sending')
+            console.log(e)
           }
             
-
-
           //clear array & start over
           scoreArrayLength = 0;
           scoreArray.length = 0;
