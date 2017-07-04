@@ -104,7 +104,7 @@ if (cluster.isMaster) {
 
         // push tweets to array
         streamedTweets.push(tweet.text)
-        console.log(streamedTweets)
+
         //Tweet location
 
         // if tweet has cooridnates
@@ -143,7 +143,8 @@ if (cluster.isMaster) {
         
 
           // FIRE!!
-          try {          
+          try { 
+            console.log('broadcast tried')
             wss.broadcast(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
           } catch(e) {
             console.log(e)
