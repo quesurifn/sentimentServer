@@ -16,7 +16,6 @@ if (cluster.isMaster) {
 
     // Listen for dying workers
     cluster.on('exit', function (worker) {
-
         // Replace the dead worker, we're not sentimental
         console.log('Worker %d died :(', worker.id);
         cluster.fork();
@@ -90,6 +89,7 @@ if (cluster.isMaster) {
 
         const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
         stream.on('tweet', function(tweet) {
+          console.log('tweet')
         let individualSent = sentiment(tweet.text)
           
           
