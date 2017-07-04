@@ -1,21 +1,22 @@
 'use strict';
 
 // Include the cluster module
-const cluster = require('cluster');
+var cluster = require('cluster');
 
 // Code to run if we're in the master process
 if (cluster.isMaster) {
 
     // Count the machine's CPUs
-    const cpuCount = require('os').cpus().length;
+    var cpuCount = require('os').cpus().length;
 
     // Create a worker for each CPU
-    for (let i = 0; i < cpuCount; i += 1) {
+    for (var i = 0; i < cpuCount; i += 1) {
         cluster.fork();
     }
 
     // Listen for dying workers
     cluster.on('exit', function (worker) {
+
         // Replace the dead worker, we're not sentimental
         console.log('Worker %d died :(', worker.id);
         cluster.fork();
@@ -29,7 +30,7 @@ if (cluster.isMaster) {
     const app = express();
     const http = require('http')
     const Twit = require('twit')
-    var sentiment = require('sentiment');
+    const sentiment = require('sentiment');
     const WebSocket = require('ws');
     const port = process.env.PORT || 3000;
     const cluster = require('cluster');
@@ -37,6 +38,8 @@ if (cluster.isMaster) {
 
     const server = http.createServer(app);
     const wss = new WebSocket.Server({ server });
+
+    const stream;
 
     const T = new Twit({
       consumer_key:         process.env.TWITTER_CONSUMER_KEY,
@@ -64,36 +67,27 @@ if (cluster.isMaster) {
       this.isAlive = true;
     }
 
-    //ON Connection event handler
+    ws.on('close', function () {
+      stream.stop();
+    });
+
     wss.on('connection', function(ws, req) {
+      
       ws.isAlive = true;
       ws.on('pong', heartbeat);
-    })
 
-    //function declaration for broadcast
-    wss.broadcast = function(data) {
-      console.log(this.clients)
- 	    for(var i in this.clients) {
- 		    this.clients[i].send(data);
-      }
-    };
 
-    //IIFE to control variables and scope
-    
-    (function() { 
       // Variables outside of stream
-        let streamedTweets = [];
-        let tweetsWithLoc =[];
-        let pos = 0;
-        let neu = 0;
-        let neg = 0;
+      let streamedTweets = [];
+      let tweetsWithLoc =[];
+      let pos = 0;
+      let neu = 0;
+      let neg = 0;
 
-        const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
-        stream.on('tweet', function(tweet) {
+      stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
+      stream.on('tweet', function(tweet) {
         let individualSent = sentiment(tweet.text)
-          
-          
-      
+        
         if (individualSent.score > 0) {
           pos++
         } else if (individualSent.score < 0) {
@@ -123,12 +117,10 @@ if (cluster.isMaster) {
 
         // When there are 40 tweets push to client
         if(tweetsWithLoc.length === 40) {
-
-          
           try { 
-            wss.broadcast(JSON.stringify({"location":tweetsWithLoc})) 
+            ws.send(JSON.stringify({"location":tweetsWithLoc})) 
           } catch(e) {
-            console.log(e)
+            console.log('Something happened while sending')
           }
 
         // resset array
@@ -143,11 +135,10 @@ if (cluster.isMaster) {
         
 
           // FIRE!!
-          try { 
-            console.log('broadcast tried')
-            wss.broadcast(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
+          try {          
+            ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
           } catch(e) {
-            console.log(e)
+            console.log('something happend while sending')
           }
             
 
@@ -160,9 +151,9 @@ if (cluster.isMaster) {
           neu = 0
         }
       })
-    })();
-    
-    
+    })
+
+
     // clean up connection
     const interval = setInterval(function ping() {
       wss.clients.forEach(function each(ws) {
