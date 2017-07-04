@@ -72,8 +72,8 @@ if (cluster.isMaster) {
 
     //function declaration for broadcast
     wss.broadcast = function(data) {
+      console.log('broadcast')
  	    for(var i in this.clients) {
-      console.log(this.clients)
  		  this.clients[i].send(data);
       }
     };
@@ -90,7 +90,6 @@ if (cluster.isMaster) {
 
         const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
         stream.on('tweet', function(tweet) {
-          console.log('tweet')
         let individualSent = sentiment(tweet.text)
           
           
@@ -160,7 +159,7 @@ if (cluster.isMaster) {
           neu = 0
         }
       })
-    })()
+    })();
     
     
     // clean up connection
