@@ -93,9 +93,9 @@ if (cluster.isMaster) {
           neu++
         }
 
-        if (individualSent > 0) {
+        if (individualSent.score > 0) {
           scoreArray.push(individualSent.score)
-        } else if (individualSent < 0) {
+        } else if (individualSent.score < 0) {
           scoreArray.push(individualSent.score * 1.35)
         }
         // push tweets to array
