@@ -39,8 +39,6 @@ if (cluster.isMaster) {
     const server = http.createServer(app);
     const wss = new WebSocket.Server({ server });
 
-    const stream;
-
     const T = new Twit({
       consumer_key:         process.env.TWITTER_CONSUMER_KEY,
       consumer_secret:      process.env.TWITTER_CONSUMER_SECRET,
@@ -84,7 +82,7 @@ if (cluster.isMaster) {
       let neu = 0;
       let neg = 0;
 
-      stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
+      const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
       stream.on('tweet', function(tweet) {
         let individualSent = sentiment(tweet.text)
         
@@ -151,6 +149,11 @@ if (cluster.isMaster) {
           neu = 0
         }
       })
+
+      ws.on('close', function () {
+        stream.stop();
+      });
+
     })
 
 
