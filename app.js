@@ -65,13 +65,13 @@ if (cluster.isMaster) {
       this.isAlive = true;
     }
 
+    //ON Connection event handler
     wss.on('connection', function(ws, req) {
-      
       ws.isAlive = true;
       ws.on('pong', heartbeat);
-      
     })
 
+    //function declaration for broadcast
     wss.broadcast = function(data) {
  	    for(var i in this.clients) {
  		  this.clients[i].send(data);
