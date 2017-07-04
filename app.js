@@ -104,7 +104,7 @@ if (cluster.isMaster) {
 
         // push tweets to array
         streamedTweets.push(tweet.text)
-
+        console.log(streamedTweets)
         //Tweet location
 
         // if tweet has cooridnates
