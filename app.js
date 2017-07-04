@@ -73,6 +73,7 @@ if (cluster.isMaster) {
     //function declaration for broadcast
     wss.broadcast = function(data) {
  	    for(var i in this.clients) {
+      console.log(this.clients)
  		  this.clients[i].send(data);
       }
     };
