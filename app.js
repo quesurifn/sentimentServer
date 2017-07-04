@@ -137,6 +137,10 @@ if (cluster.isMaster) {
           average = scoreArray.reduce((a, b) => a + b, 0);
           average = average / scoreArrayLength;
 
+          average = average.toFixed(4);
+
+          average = parseFloat(average)
+
           //join all the tweets in the array to a single string
           let trumpSentiment = sentiment(streamedTweets.join());
         
