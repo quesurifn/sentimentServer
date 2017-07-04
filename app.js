@@ -64,11 +64,7 @@ if (cluster.isMaster) {
       this.isAlive = true;
     }
 
-    //ON Connection event handler
-    wss.on('connection', function(ws, req) {
-      ws.isAlive = true;
-      ws.on('pong', heartbeat);
-    })
+
 
     //function declaration for broadcast
     wss.broadcast = function(data) {
@@ -91,75 +87,84 @@ if (cluster.isMaster) {
 
         const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
         stream.on('tweet', function(tweet) {
-        let individualSent = sentiment(tweet.text)
+
+            //ON Connection event handler
+          wss.on('connection', function(ws, req) {
+            ws.isAlive = true;
+            ws.on('pong', heartbeat);
+  
+
+
+
+
+            let individualSent = sentiment(tweet.text)
           
-          
-      
-        if (individualSent.score > 0) {
-          pos++
-        } else if (individualSent.score < 0) {
-          neg++
-        } else if (individualSent.score === 0) {
-          neu++
-        }
+            if (individualSent.score > 0) {
+              pos++
+            } else if (individualSent.score < 0) {
+              neg++
+            } else if (individualSent.score === 0) {
+              neu++
+            }
 
-        // push tweets to array
-        streamedTweets.push(tweet.text)
+            // push tweets to array
+            streamedTweets.push(tweet.text)
 
-        //Tweet location
+            //Tweet location
 
-        // if tweet has cooridnates
-        if(tweet.coordinates) {
-          //and if coordiantes don't = null
-          if(tweet.coordinates != null) {
+            // if tweet has cooridnates
+            if(tweet.coordinates) {
+              //and if coordiantes don't = null
+              if(tweet.coordinates != null) {
+                  
+                  //get location sentiment and lng / lat
+                  let outputPoint = {"lat": tweet.coordinates.coordinates[0],"lng": tweet.coordinates.coordinates[1]};
+                  let locSentiment = sentiment(tweet.text)
+
+                  // push to the location array 
+                  tweetsWithLoc.push({"tweet": tweet.text, "location": outputPoint, "sentiment": locSentiment});
+              }
+            }
+
+            // When there are 40 tweets push to client
+            if(tweetsWithLoc.length === 40) {
+
               
-              //get location sentiment and lng / lat
-              let outputPoint = {"lat": tweet.coordinates.coordinates[0],"lng": tweet.coordinates.coordinates[1]};
-              let locSentiment = sentiment(tweet.text)
+              try { 
+                wss.broadcast(JSON.stringify({"location":tweetsWithLoc})) 
+              } catch(e) {
+                console.log(e)
+              }
 
-              // push to the location array 
-              tweetsWithLoc.push({"tweet": tweet.text, "location": outputPoint, "sentiment": locSentiment});
-          }
-        }
+            // resset array
+            tweetsWithLoc.length = 0;
+            }
 
-        // When there are 40 tweets push to client
-        if(tweetsWithLoc.length === 40) {
+            //send streamed tweets off when the array hits 50 tweets
+            if(streamedTweets.length === 50) { 
 
-          
-          try { 
-            wss.broadcast(JSON.stringify({"location":tweetsWithLoc})) 
-          } catch(e) {
-            console.log(e)
-          }
-
-        // resset array
-        tweetsWithLoc.length = 0;
-        }
-
-        //send streamed tweets off when the array hits 50 tweets
-        if(streamedTweets.length === 50) { 
-
-          //join all the tweets in the array to a single string
-          let trumpSentiment = sentiment(streamedTweets.join());
-        
-
-          // FIRE!!
-          try { 
-            console.log('broadcast tried')
-            wss.broadcast(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
-          } catch(e) {
-            console.log(e)
-          }
+              //join all the tweets in the array to a single string
+              let trumpSentiment = sentiment(streamedTweets.join());
             
 
+              // FIRE!!
+              try { 
+                console.log('broadcast tried')
+                wss.broadcast(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu }}))
+              } catch(e) {
+                console.log(e)
+              }
+                
 
-          //clear array & start over
 
-          streamedTweets.length = 0;
-          pos = 0
-          neg = 0
-          neu = 0
-        }
+                //clear array & start over
+
+                streamedTweets.length = 0;
+                pos = 0
+                neg = 0
+                neu = 0
+          }
+        })
       })
     })();
     
