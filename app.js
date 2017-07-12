@@ -162,6 +162,14 @@ if (cluster.isMaster) {
         }
       })
 
+      stream.on('limit', function (limitMessage) {
+        console.log(limitMessage)
+      })
+
+      stream.on('reconnect', function (reconnect) {
+        console.log(reconnect)
+      })
+
       ws.on('close', function () {
         stream.stop();
       });
