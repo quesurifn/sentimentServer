@@ -92,16 +92,16 @@
 
         // When there are 40 tweets push to client
         if(tweetsWithLoc.length === 40) {
-
+            console.log('40')
           try { 
 
-            wss.broadcast = function broadcast(data) {
+        
               wss.clients.forEach(function each(client) {
                 if (client.readyState === WebSocket.OPEN) {
                   client.send(JSON.stringify({"location":tweetsWithLoc}));
                 }
               });
-            };
+          
 
           } catch(e) {
             console.log(e)
@@ -129,14 +129,13 @@
           // FIRE!!
           try {       
 
-
-              wss.broadcast = function broadcast(data) {
+  
                 wss.clients.forEach(function each(client) {
                   if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu, "average": average}}))
                   }
                 });
-              };        
+             
       
     } catch(e) {
             console.log(e)
@@ -155,11 +154,16 @@
       //end stream
 
       stream.on('limit', function (limitMessage) {
+        console.log('limit')
         stream.stop();
       })
 
       stream.on('reconnect', function (reconnect) {
         console.log(reconnect)
+      })
+
+      stream.on('error', function(err) {
+        console.log(err)
       })
 
     // clean up connection
