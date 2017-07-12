@@ -154,8 +154,7 @@
       //end stream
 
       stream.on('limit', function (limitMessage) {
-        console.log('limit')
-        stream.stop();
+        console.log(limit)
       })
 
       stream.on('reconnect', function (reconnect) {
