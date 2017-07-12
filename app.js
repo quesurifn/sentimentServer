@@ -41,7 +41,7 @@
       
       ws.isAlive = true;
       ws.on('pong', heartbeat);
-
+    })
 
       // Variables outside of stream
       let streamedTweets = [];
@@ -132,10 +132,12 @@
           neg = 0
           neu = 0
         }
-      })
+      }) 
+
+      //end stream
 
       stream.on('limit', function (limitMessage) {
-        console.log(limitMessage)
+        stream.stop();
       })
 
       stream.on('reconnect', function (reconnect) {
@@ -146,7 +148,7 @@
         stream.stop();
       });
 
-    })
+  
 
 
     // clean up connection
