@@ -158,7 +158,7 @@
       })
 
       stream.on('reconnect', function (reconnect) {
-        console.log(reconnect)
+        console.log('reconnecting')
       })
 
       stream.on('error', function(err) {
