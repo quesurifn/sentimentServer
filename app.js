@@ -93,7 +93,15 @@
         if(tweetsWithLoc.length === 40) {
 
           try { 
-            ws.send(JSON.stringify({"location":tweetsWithLoc})) 
+
+            wss.broadcast = function broadcast(data) {
+              wss.clients.forEach(function each(client) {
+                if (client.readyState === WebSocket.OPEN) {
+                  client.send(JSON.stringify({"location":tweetsWithLoc}));
+                }
+              });
+            };
+
           } catch(e) {
             console.log(e)
           }
@@ -118,9 +126,18 @@
         
 
           // FIRE!!
-          try {          
-            ws.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu, "average": average}}))
-          } catch(e) {
+          try {       
+
+
+              wss.broadcast = function broadcast(data) {
+                wss.clients.forEach(function each(client) {
+                  if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu, "average": average}}))
+                  }
+                });
+              };        
+      
+    } catch(e) {
             console.log(e)
           }
             
