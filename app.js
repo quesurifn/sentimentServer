@@ -55,6 +55,7 @@
 
       const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
       stream.on('tweet', function(tweet) {
+        console.log(tweet.text)
         let individualSent = sentiment(tweet.text)
         
         if (individualSent.score > 0) {
@@ -160,13 +161,6 @@
       stream.on('reconnect', function (reconnect) {
         console.log(reconnect)
       })
-
-      ws.on('close', function () {
-        stream.stop();
-      });
-
-  
-
 
     // clean up connection
     const interval = setInterval(function ping() {
