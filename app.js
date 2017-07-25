@@ -6,6 +6,7 @@
     const WebSocket = require('ws');
     const port = process.env.PORT || 3000;
     const cluster = require('cluster');
+    const countThem = require('./utils/frequency.js').count;
     require('dotenv').config()
 
     const server = http.createServer(app);
@@ -53,9 +54,9 @@
       let scoreArrayLength = 0;
       let average = 0;
 
-      const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'president', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
+      const stream = T.stream('statuses/filter', { track: ['POTUS', 'trump', 'realDonaldTrump'], locations: '-180,-90,180,90', language: 'en' })
       stream.on('tweet', function(tweet) {
-        console.log(tweet.text)
+
         let individualSent = sentiment(tweet.text)
         
         if (individualSent.score > 0) {
@@ -124,15 +125,14 @@
 
           //join all the tweets in the array to a single string
           let trumpSentiment = sentiment(streamedTweets.join());
-        
+          let words = countThem(trumpSentiment.tokens)
 
           // FIRE!!
           try {       
 
-  
                 wss.clients.forEach(function each(client) {
                   if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu, "average": average}}))
+                    client.send(JSON.stringify({"main": {"sentiment": trumpSentiment, "featuredTweet": streamedTweets[19], "pos": pos, "neg": neg, "neu": neu, "average": average, "words":words}}))
                   }
                 });
              
