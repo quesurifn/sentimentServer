@@ -91,8 +91,8 @@
         }
 
         // When there are 40 tweets push to client
-        if(tweetsWithLoc.length === 40) {
-            console.log('40')
+        if(tweetsWithLoc.length === 80) {
+            
           try { 
 
         
